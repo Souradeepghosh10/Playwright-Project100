@@ -6,7 +6,7 @@ export class GooglePage {
   constructor(page: Page) {
     this.page = page;
   }
-
+//test
   async goto() {
     await this.page.goto('https://www.google.com');
   }
