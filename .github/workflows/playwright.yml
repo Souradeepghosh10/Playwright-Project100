@@ -9,6 +9,7 @@ on:
       - Master
   schedule:
     - cron: '0 20 * * *'
+  workflow_dispatch:
 
 jobs:
   test:
@@ -22,8 +23,10 @@ jobs:
           node-version: '20.x'
       - name: Install dependencies
         run: npm ci
-      - name: Run Playwright tests
-        run: npx playwright test
+      - name: Install Playwright browsers
+        run: npx playwright install
+      - name: Run Playwright tests (Chromium only)
+        run: PW_BROWSER=chromium npx playwright test
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
