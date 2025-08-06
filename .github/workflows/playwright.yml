@@ -25,8 +25,8 @@ jobs:
         run: npm ci
       - name: Install Playwright browsers
         run: npx playwright install
-      - name: Run Playwright tests (Chromium only)
-        run: PW_BROWSER=chromium npx playwright test
+      - name: Run Playwright tests (Chromium only, no retries)
+        run: PW_BROWSER=chromium PLAYWRIGHT_TEST_RETRIES=0 npx playwright test --project=chromium
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
