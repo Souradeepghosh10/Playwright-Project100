@@ -62,3 +62,4 @@ jobs:
             git push
           else
             echo "⚠️ Skipping push: playwright-report not found."
+          fi
