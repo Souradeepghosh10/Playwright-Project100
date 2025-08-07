@@ -9,7 +9,7 @@ on:
       - Master
   workflow_dispatch:
   schedule:
-    - cron: '0 2 * * *' # Runs daily at 2 AM UTC (7:30 AM IST)
+    - cron: '0 2 * * *' # runs daily at 2 AM UTC (7:30 AM IST)
 
 jobs:
   test-and-report:
@@ -36,12 +36,13 @@ jobs:
           git clone https://x-access-token:${{ secrets.DASHBOARD_REPO_TOKEN }}@github.com/Souradeepghosh10/playwright-dashboard.git
           REPORT_DATE=$(date +'%Y-%m-%d')
           echo "📅 REPORT_DATE: $REPORT_DATE"
+          
           if [ -d "playwright-report" ]; then
             mkdir -p playwright-dashboard/Reports/$REPORT_DATE/html-report
             cp -r playwright-report/* playwright-dashboard/Reports/$REPORT_DATE/html-report/
             cp playwright-report/report.json playwright-dashboard/Reports/$REPORT_DATE/report.json
 
-            cat > playwright-dashboard/index.html <<EOF
+            cat > playwright-dashboard/index.html <<'EOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -50,8 +51,8 @@ jobs:
 </head>
 <body>
   <h1>📊 Latest Playwright Test Report</h1>
-  <p>Generated on: $REPORT_DATE</p>
-  <a href="Reports/$REPORT_DATE/html-report/index.html" target="_blank">🔗 View Latest Report</a>
+  <p>Generated on: '"$REPORT_DATE"'</p>
+  <a href="Reports/'"$REPORT_DATE"'/html-report/index.html" target="_blank">🔗 View Latest Report</a>
 </body>
 </html>
 EOF
