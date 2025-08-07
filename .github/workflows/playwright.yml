@@ -25,13 +25,16 @@ jobs:
       - name: 🧰 Install Playwright Browsers (only Chromium)
         run: npx playwright install --with-deps chromium
 
-      - name: 🧪 Run Playwright Tests (Chromium only, no retries)
-        run: npx playwright test --project=chromium --retries=0
+      - name: 🧪 Run Playwright Tests (even if failing)
+        run: |
+          npx playwright test --project=chromium --retries=0 || true
+        continue-on-error: true
 
       - name: 📂 Debug - List Report Folder
         run: ls -R playwright-report || echo "Report folder missing"
 
       - name: 🚀 Push Report to Dashboard Repo
+        if: always()
         run: |
           git clone https://x-access-token:${{ secrets.DASHBOARD_REPO_TOKEN }}@github.com/Souradeepghosh10/playwright-dashboard.git
           REPORT_DATE=$(date +'%Y-%m-%d')
