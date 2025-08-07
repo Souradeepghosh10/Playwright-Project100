@@ -42,27 +42,11 @@ jobs:
             cp -r playwright-report/* playwright-dashboard/Reports/$REPORT_DATE/html-report/
             cp playwright-report/report.json playwright-dashboard/Reports/$REPORT_DATE/report.json
 
-            cat <<EOF > playwright-dashboard/index.html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Latest Playwright Test Report</title>
-</head>
-<body>
-  <h1>📊 Latest Playwright Test Report</h1>
-  <p>Generated on: $REPORT_DATE</p>
-  <a href="Reports/$REPORT_DATE/html-report/index.html" target="_blank">🔗 View Latest Report</a>
-</body>
-</html>
-EOF
-
             cd playwright-dashboard
             git config user.email "github-actions@github.com"
             git config user.name "github-actions"
             git add .
-            git commit -m "📊 Add test report for $REPORT_DATE and update index.html" || echo "No changes to commit"
+            git commit -m "📊 Add test report for $REPORT_DATE" || echo "No changes to commit"
             git push
           else
             echo "⚠️ Skipping push: playwright-report not found."
-          fi
