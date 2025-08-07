@@ -21,6 +21,10 @@ jobs:
           node-version: 20
 
 
+
+      - name: 🌐 Install Playwright browsers (all required)
+        run: npx playwright install
+
       - name: 🌐 Install Playwright browsers (only Chromium)
         run: npx playwright install chromium
 
