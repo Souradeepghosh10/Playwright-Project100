@@ -27,14 +27,12 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci
-
-      - name: Install Chromium browser only
-        run: npx playwright install chromium
-
-      - name: Run Playwright Tests (Chromium only)
-        run: npx playwright test --project=chromium
-
-      - name: Upload Report Artifact
+      - name: Install Playwright browsers
+        run: npx playwright install
+      - name: Run Playwright tests (Chromium only)
+        run: PW_BROWSER=chromium npx playwright test
+      - name: Upload Playwright report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
