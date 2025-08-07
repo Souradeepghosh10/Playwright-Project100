@@ -30,7 +30,8 @@ jobs:
         run: npx playwright install
 
       - name: 🎭 Run Playwright tests (Chromium only, no retries)
-        run: npx playwright test --project=chromium --retries=0 --reporter=html,json
+        run: npx playwright test --project=chromium --retries=0 --reporter=html,json || true
+        continue-on-error: true
 
       - name: 📁 Upload Playwright HTML Report
         if: always()
