@@ -1,42 +1,48 @@
-name: 🧪 Run Playwright Tests and Push to Dashboard
+name: 🎭 Playwright Tests
 
 on:
   push:
-    branches:
-      - Master
+    branches: [main]
   pull_request:
-    branches:
-      - Master
+    branches: [main]
   workflow_dispatch:
-  schedule:
-    - cron: '0 2 * * *' # Runs daily at 2 AM UTC (7:30 AM IST)
 
 jobs:
-  test-and-report:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: ⬇️ Checkout Playwright Project
-        uses: actions/checkout@v3
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v4
 
-      - name: 📦 Install Dependencies
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📦 Install dependencies
         run: npm ci
 
-      - name: 🧰 Install Playwright Browsers (only Chromium)
-        run: npx playwright install --with-deps chromium
+      - name: 🎭 Run Playwright tests
+        run: npx playwright test --reporter html,json
 
-      - name: 🧪 Run Playwright Tests (continue on failure)
-        run: |
-          npx playwright test --project=chromium --retries=0 || true
-        continue-on-error: true
+      - name: 📁 Upload Playwright HTML Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-html-report
+          path: playwright-report
+          retention-days: 5
 
       - name: 🚀 Push Report to Dashboard Repo
         if: always()
         run: |
           git clone https://x-access-token:${{ secrets.DASHBOARD_REPO_TOKEN }}@github.com/Souradeepghosh10/playwright-dashboard.git
-          REPORT_DATE=$(date +'%Y-%m-%d')
+
+          # Use IST for report folder date
+          REPORT_DATE=$(TZ='Asia/Kolkata' date +'%Y-%m-%d')
           echo "📅 REPORT_DATE: $REPORT_DATE"
-          
+
           if [ -d "playwright-report" ]; then
             mkdir -p playwright-dashboard/Reports/$REPORT_DATE/html-report
             cp -r playwright-report/* playwright-dashboard/Reports/$REPORT_DATE/html-report/
@@ -46,8 +52,7 @@ jobs:
             git config user.email "github-actions@github.com"
             git config user.name "github-actions"
             git add .
-            git commit -m "📊 Add test report for $REPORT_DATE" || echo "No changes to commit"
+            git commit -m "📊 Add test report for $REPORT_DATE"
             git push
           else
             echo "⚠️ Skipping push: playwright-report not found."
-          fi
