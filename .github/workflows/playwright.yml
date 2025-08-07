@@ -1,64 +1,51 @@
-name: Playwright Tests with Dashboard Reporting
-
+name: 💻 Playwright Tests - Chrome Only
 
 on:
   push:
     branches:
       - Master
-  pull_request:
-    branches:
-      - Master
-  workflow_dispatch:
   schedule:
-    - cron: '0 1 * * *' # Runs daily at 1:00 AM UTC
+    - cron: '0 0 * * *' # Runs daily at midnight UTC
+  workflow_dispatch:
 
 jobs:
-  test-and-publish:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Playwright Repo
+      - name: ⬇️ Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install Dependencies
+      - name: 🧪 Install dependencies
         run: npm ci
-      - name: Install Playwright browsers
-        run: npx playwright install
-      - name: Run Playwright tests (Chromium only)
-        run: PW_BROWSER=chromium npx playwright test
-      - name: Upload Playwright report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: playwright-report
 
-      - name: Clone Dashboard Repo
+      - name: 🌐 Install Playwright browsers (Chrome only)
+        run: npx playwright install chromium
+
+      - name: 🧪 Run Playwright Tests (Chrome, no retries)
         run: |
-          git clone https://github.com/souradeepghosh10/playwright-dashboard.git
-          mv playwright-report/report.json playwright-dashboard/data/latest.json
+          npx playwright test --project=chromium --retries=0
+        env:
+          CI: true
 
-      - name: Install Python for Processing
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install Python Requirements
-        run: pip install -r playwright-dashboard/requirements.txt
-
-      - name: Generate Dashboard Data
-        run: python playwright-dashboard/update_dashboard.py
-
-      - name: Commit and Push Dashboard Data
+      - name: 🧾 Generate HTML Report
         run: |
+          npx playwright show-report --output=playwright-report
+
+      - name: 📤 Copy HTML & JSON to dashboard and push
+        run: |
+          # Clone the dashboard repo
+          git clone https://x-access-token:${{ secrets.DASHBOARD_REPO_TOKEN }}@github.com/souradeepghosh10/playwright-dashboard.git
+
+          # Create dated folder and copy reports
+          REPORT_DIR="playwright-dashboard/Reports/$(date +'%Y-%m-%d')"
+          mkdir -p "$REPORT_DIR"
+          cp -r playwright-report/* "$REPORT_DIR"/
+
+          # Push to dashboard repo
           cd playwright-dashboard
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/index.json
-          git commit -m "🔁 Update dashboard report from Playwright run $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || echo "No changes to commit"
-          git push https://x-access-token:${{ secrets.DASHBOARD_REPO_TOKEN }}@github.com/souradeepghosh10/playwright-dashboard.git main
+          git config user.email "github-actions@github.com"
+          git config user.name "github-actions"
+          git add .
+          git commit -m "📈 Add report for $(date +'%Y-%m-%d')" || echo "No changes to commit"
+          git push origin main
