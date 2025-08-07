@@ -68,7 +68,7 @@ test.describe('Practice Test Automation - Contacts Tab', () => {
 
   test('Validate navigation to Contacts tab', async ({ page }) => {
     await page.goto('https://practicetestautomation.com/');
-    await page.click('text=Contact1');
+    await page.click('text=Contact');
     await expect(page).toHaveURL(CONTACT_URL);
     await expect(page.locator('h1')).toHaveText(/Contact/);
   });
