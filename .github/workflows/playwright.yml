@@ -25,26 +25,34 @@ jobs:
       - name: 🧰 Install Playwright Browsers (only Chromium)
         run: npx playwright install --with-deps chromium
 
-      - name: 🧪 Run Playwright Tests (even if failing)
+      - name: 🧪 Run Playwright Tests (continue on failure)
         run: |
           npx playwright test --project=chromium --retries=0 || true
         continue-on-error: true
 
-      - name: 📂 Debug - List Report Folder
-        run: ls -R playwright-report || echo "Report folder missing"
+      - name: 🧪 Debug - Show Report Folder
+        run: |
+          echo "Today: $(date +'%Y-%m-%d')"
+          ls -la playwright-report || echo "❌ playwright-report folder missing"
 
       - name: 🚀 Push Report to Dashboard Repo
         if: always()
         run: |
           git clone https://x-access-token:${{ secrets.DASHBOARD_REPO_TOKEN }}@github.com/Souradeepghosh10/playwright-dashboard.git
+          
           REPORT_DATE=$(date +'%Y-%m-%d')
-          mkdir -p playwright-dashboard/Reports/$REPORT_DATE/html-report
-          cp -r playwright-report/* playwright-dashboard/Reports/$REPORT_DATE/html-report/
-          cp playwright-report/report.json playwright-dashboard/Reports/$REPORT_DATE/report.json
 
-          cd playwright-dashboard
-          git config user.email "github-actions@github.com"
-          git config user.name "github-actions"
-          git add .
-          git commit -m "Add report for $REPORT_DATE" || echo "No changes to commit"
-          git push
+          if [ -d "playwright-report" ]; then
+            mkdir -p playwright-dashboard/Reports/$REPORT_DATE/html-report
+            cp -r playwright-report/* playwright-dashboard/Reports/$REPORT_DATE/html-report/
+            cp playwright-report/report.json playwright-dashboard/Reports/$REPORT_DATE/report.json
+
+            cd playwright-dashboard
+            git config user.email "github-actions@github.com"
+            git config user.name "github-actions"
+            git add .
+            git commit -m "📊 Add test report for $REPORT_DATE" || echo "No changes to commit"
+            git push
+          else
+            echo "⚠️ Skipping push: playwright-report not found."
+          fi
