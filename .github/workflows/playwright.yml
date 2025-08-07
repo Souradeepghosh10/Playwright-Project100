@@ -9,7 +9,7 @@ on:
       - Master
   workflow_dispatch:
   schedule:
-    - cron: '0 2 * * *' # runs daily at 2 AM UTC (7:30 AM IST)
+    - cron: '0 2 * * *' # Runs daily at 2 AM UTC (7:30 AM IST)
 
 jobs:
   test-and-report:
@@ -50,3 +50,4 @@ jobs:
             git push
           else
             echo "⚠️ Skipping push: playwright-report not found."
+          fi
