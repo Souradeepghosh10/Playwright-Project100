@@ -29,26 +29,22 @@ jobs:
       - name: 🌐 Install Playwright browsers
         run: npx playwright install
 
-      - name: 🎭 Run Playwright tests (Chromium only, no retries)
-        run: npx playwright test --project=chromium --retries=0 --reporter=html,json || true
+      - name: 🧪 Run Playwright Tests (continue on failure)
+        run: |
+          npx playwright test --project=chromium --retries=0 || true
         continue-on-error: true
 
-      - name: 📁 Upload Playwright HTML Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-html-report
-          path: playwright-report
-          retention-days: 5
+      - name: 🧪 Debug - Show Report Folder
+        run: |
+          echo "Today: $(date +'%Y-%m-%d')"
+          ls -la playwright-report || echo "❌ playwright-report folder missing"
 
       - name: 🚀 Push Report to Dashboard Repo
         if: always()
         run: |
           git clone https://x-access-token:${{ secrets.DASHBOARD_REPO_TOKEN }}@github.com/Souradeepghosh10/playwright-dashboard.git
-
-          # Use IST for report folder date
-          REPORT_DATE=$(TZ='Asia/Kolkata' date +'%Y-%m-%d')
-          echo "📅 REPORT_DATE: $REPORT_DATE"
+          
+          REPORT_DATE=$(date +'%Y-%m-%d')
 
           if [ -d "playwright-report" ]; then
             mkdir -p playwright-dashboard/Reports/$REPORT_DATE/html-report
@@ -59,7 +55,7 @@ jobs:
             git config user.email "github-actions@github.com"
             git config user.name "github-actions"
             git add .
-            git commit -m "📊 Add test report for $REPORT_DATE"
+            git commit -m "📊 Add test report for $REPORT_DATE" || echo "No changes to commit"
             git push
           else
             echo "⚠️ Skipping push: playwright-report not found."
