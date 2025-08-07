@@ -20,11 +20,15 @@ jobs:
         with:
           node-version: 20
 
+
+      - name: 🌐 Install Playwright browsers (only Chromium)
+        run: npx playwright install chromium
+
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: 🎭 Run Playwright tests
-        run: npx playwright test --reporter html,json
+      - name: 🎭 Run Playwright tests (Chromium only, no retries)
+        run: npx playwright test --project=chromium --retries=0 --reporter=html,json
 
       - name: 📁 Upload Playwright HTML Report
         if: always()
