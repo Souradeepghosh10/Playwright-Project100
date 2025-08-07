@@ -5,6 +5,6 @@ test('Validate Gmail page loads', async ({ page }) => {
   await page.goto('https://mail.google.com/');
 
   // Step 2: Verify Gmail login page is displayed
-  await expect(page).toHaveTitle(/Gmail1/);
+  await expect(page).toHaveTitle(/Gmail/);
   await expect(page.locator('input[type="email"]')).toBeVisible();
 });
