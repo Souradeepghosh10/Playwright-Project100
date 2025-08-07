@@ -22,14 +22,12 @@ jobs:
 
 
 
-      - name: 🌐 Install Playwright browsers (all required)
-        run: npx playwright install
-
-      - name: 🌐 Install Playwright browsers (only Chromium)
-        run: npx playwright install chromium
 
       - name: 📦 Install dependencies
         run: npm ci
+
+      - name: 🌐 Install Playwright browsers
+        run: npx playwright install
 
       - name: 🎭 Run Playwright tests (Chromium only, no retries)
         run: npx playwright test --project=chromium --retries=0 --reporter=html,json
