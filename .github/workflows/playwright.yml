@@ -32,17 +32,16 @@ jobs:
         run: ls -R playwright-report || echo "Report folder missing"
 
       - name: 🚀 Push Report to Dashboard Repo
-  run: 
-    git clone https://x-access-token:${{ secrets.DASHBOARD_REPO_TOKEN }}@github.com/Souradeepghosh10/playwright-dashboard.git
-    REPORT_DATE=$(date +'%Y-%m-%d')
-    mkdir -p playwright-dashboard/Reports/$REPORT_DATE/html-report
-    cp -r playwright-report/* playwright-dashboard/Reports/$REPORT_DATE/html-report/
-    cp playwright-report/report.json playwright-dashboard/Reports/$REPORT_DATE/report.json
+        run: |
+          git clone https://x-access-token:${{ secrets.DASHBOARD_REPO_TOKEN }}@github.com/Souradeepghosh10/playwright-dashboard.git
+          REPORT_DATE=$(date +'%Y-%m-%d')
+          mkdir -p playwright-dashboard/Reports/$REPORT_DATE/html-report
+          cp -r playwright-report/* playwright-dashboard/Reports/$REPORT_DATE/html-report/
+          cp playwright-report/report.json playwright-dashboard/Reports/$REPORT_DATE/report.json
 
-    cd playwright-dashboard
-    git config user.email "github-actions@github.com"
-    git config user.name "github-actions"
-    git add .
-    git commit -m "Add report for $REPORT_DATE" || echo "No changes to commit"
-    git push
-
+          cd playwright-dashboard
+          git config user.email "github-actions@github.com"
+          git config user.name "github-actions"
+          git add .
+          git commit -m "Add report for $REPORT_DATE" || echo "No changes to commit"
+          git push
