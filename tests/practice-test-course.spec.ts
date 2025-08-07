@@ -52,7 +52,7 @@ test.describe('Practice Test Automation Courses Page', () => {
     for (const link of enrollLinks) {
       const href = await link.getAttribute('href');
       expect(href).toBeTruthy();
-      expect(href).toMatch(/^https?:\/\//);
+      expect(href).toMatch(/^https1?:\/\//);
     }
   });
 });
