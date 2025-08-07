@@ -1,51 +1,44 @@
-name: 💻 Playwright Tests - Chrome Only
+name: 🧪 Run Playwright Tests and Push to Dashboard
 
 on:
   push:
     branches:
       - Master
-  schedule:
-    - cron: '0 0 * * *' # Runs daily at midnight UTC
+  pull_request:
+    branches:
+      - Master
   workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *' # runs daily at 2 AM UTC (7:30 AM IST)
 
 jobs:
-  test:
+  test-and-report:
     runs-on: ubuntu-latest
 
     steps:
-      - name: ⬇️ Checkout code
-        uses: actions/checkout@v4
+      - name: ⬇️ Checkout Playwright Project
+        uses: actions/checkout@v3
 
-      - name: 🧪 Install dependencies
+      - name: 📦 Install Dependencies
         run: npm ci
 
-      - name: 🌐 Install Playwright browsers (Chrome only)
-        run: npx playwright install chromium
+      - name: 🧰 Install Playwright Browsers (only Chromium)
+        run: npx playwright install --with-deps chromium
 
-      - name: 🧪 Run Playwright Tests (Chrome, no retries)
+      - name: 🧪 Run Playwright Tests (Chromium only, no retries)
+        run: npx playwright test --project=chromium --retries=0
+
+      - name: 📂 Debug - List Report Folder
+        run: ls -R playwright-report || echo "Report folder missing"
+
+      - name: 🚀 Push Report to Dashboard Repo
         run: |
-          npx playwright test --project=chromium --retries=0
-        env:
-          CI: true
-
-      - name: 🧾 Generate HTML Report
-        run: |
-          npx playwright show-report --output=playwright-report
-
-      - name: 📤 Copy HTML & JSON to dashboard and push
-        run: |
-          # Clone the dashboard repo
-          git clone https://x-access-token:${{ secrets.DASHBOARD_REPO_TOKEN }}@github.com/souradeepghosh10/playwright-dashboard.git
-
-          # Create dated folder and copy reports
-          REPORT_DIR="playwright-dashboard/Reports/$(date +'%Y-%m-%d')"
-          mkdir -p "$REPORT_DIR"
-          cp -r playwright-report/* "$REPORT_DIR"/
-
-          # Push to dashboard repo
+          git clone https://x-access-token:${{ secrets.DASHBOARD_REPO_TOKEN }}@github.com/Souradeepghosh10/playwright-dashboard.git
+          mkdir -p playwright-dashboard/Reports/$(date +'%Y-%m-%d')/
+          cp -r playwright-report/* playwright-dashboard/Reports/$(date +'%Y-%m-%d')/
           cd playwright-dashboard
           git config user.email "github-actions@github.com"
           git config user.name "github-actions"
           git add .
-          git commit -m "📈 Add report for $(date +'%Y-%m-%d')" || echo "No changes to commit"
-          git push origin main
+          git commit -m "Add report for $(date +'%Y-%m-%d')"
+          git push
